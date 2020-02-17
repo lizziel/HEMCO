@@ -22,7 +22,9 @@ MODULE Regrid_A2A_Mod
 !
 ! !PUBLIC MEMBER FUNCTIONS:
 !
+#if !defined( HEMCO_CESM )
   PUBLIC  :: Do_Regrid_A2A
+#endif
   PUBLIC  :: Map_A2A
   PUBLIC  :: Init_Map_A2A
   PUBLIC  :: Cleanup_Map_A2A
@@ -37,7 +39,9 @@ MODULE Regrid_A2A_Mod
 !
 ! !PRIVATE MEMBER FUNCTIONS:
 !
+#if !defined( HEMCO_CESM )
   PRIVATE :: Read_Input_Grid
+#endif
   PRIVATE :: Map_A2A_R8R8
   PRIVATE :: Map_A2A_R4R4
   PRIVATE :: Map_A2A_R4R8
@@ -114,6 +118,7 @@ MODULE Regrid_A2A_Mod
   REAL*8, PARAMETER   :: miss_r8 = 0.0d0
 
 CONTAINS
+#if !defined( HEMCO_CESM )
 !EOC
 !------------------------------------------------------------------------------
 !                  GEOS-Chem Global Chemical Transport Model                  !
@@ -250,6 +255,7 @@ CONTAINS
     ENDIF
 
   END SUBROUTINE Do_Regrid_A2A
+#endif
 !EOC
 !------------------------------------------------------------------------------
 !                  GEOS-Chem Global Chemical Transport Model                  !
@@ -2782,6 +2788,7 @@ CONTAINS
     q2   => NULL()
 
   END SUBROUTINE xmap_r8r4
+#if !defined( HEMCO_CESM )
 !EOC
 !------------------------------------------------------------------------------
 !                  GEOS-Chem Global Chemical Transport Model                  !
@@ -2882,6 +2889,7 @@ CONTAINS
 #endif
 
   END SUBROUTINE Read_Input_Grid
+#endif
 !EOC
 !------------------------------------------------------------------------------
 !                  GEOS-Chem Global Chemical Transport Model                  !
