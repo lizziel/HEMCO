@@ -3,11 +3,11 @@
 !------------------------------------------------------------------------------
 !BOP
 !
-! !MODULE: hcoio_read_std_mod.F90
+! !MODULE: hcoio_read_pio_mod.F90
 !
-! !DESCRIPTION: Module HCOIO\_read\_std\_mod controls data processing
+! !DESCRIPTION: Module HCOIO\_read\_pio\_mod controls data processing
 ! (file reading, unit conversion, regridding) for HEMCO in the
-! 'standard' environment (i.e. non-ESMF).
+! CESM environment.
 !\\
 !\\
 ! !INTERFACE:
@@ -28,7 +28,6 @@ MODULE HCOIO_read_std_mod
 !
   PUBLIC  :: HCOIO_ReadOther
   PUBLIC  :: HCOIO_CloseAll
-#if !defined(ESMF_)
   PUBLIC  :: HCOIO_read_std
 !
 ! !PRIVATE MEMBER FUNCTIONS:
@@ -46,7 +45,6 @@ MODULE HCOIO_read_std_mod
   PRIVATE :: SigmaMidToEdges
   PRIVATE :: CheckMissVal
   PRIVATE :: GetArbDimIndex
-#endif
   PRIVATE :: HCOIO_ReadCountryValues
   PRIVATE :: HCOIO_ReadFromConfig
   PRIVATE :: GetDataVals
@@ -56,12 +54,7 @@ MODULE HCOIO_read_std_mod
 !
 ! !REVISION HISTORY:
 !  22 Aug 2013 - C. Keller   - Initial version
-!  01 Jul 2014 - R. Yantosca - Now use F90 free-format indentation
-!  01 Jul 2014 - R. Yantosca - Cosmetic changes in ProTeX headers
-!  22 Feb 2016 - C. Keller   - Split off from hcoio_dataread_mod.F90
-!  10 Apr 2017 - R. Yantosca - Time vectors now use YYYYMMDDhhmm format,
-!                              and are now all REAL(dp) instead of INTEGER(8)
-!  11 Apr 2017 - R. Yantosca - Added more minor fixes for robustness
+!  17 Feb 2020 - H.P. Lin    - Initial version based of HCOIO standard for testing.
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -73,7 +66,6 @@ MODULE HCOIO_read_std_mod
 
 CONTAINS
 !EOC
-#if !defined( ESMF_ )
 !------------------------------------------------------------------------------
 !                  Harvard-NASA Emissions Component (HEMCO)                   !
 !------------------------------------------------------------------------------
@@ -113,6 +105,8 @@ CONTAINS
 !
 ! !USES:
 !
+#if !defined( HEMCO_CESM )
+    ! Temporarily comment all these out...
     USE Ncdf_Mod,           ONLY : NC_Open
     USE Ncdf_Mod,           ONLY : NC_Close
     USE Ncdf_Mod,           ONLY : NC_Read_Var
@@ -120,6 +114,9 @@ CONTAINS
     USE Ncdf_Mod,           ONLY : NC_Get_Grid_Edges
     USE Ncdf_Mod,           ONLY : NC_Get_Sigma_Levels
     USE Ncdf_Mod,           ONLY : NC_ISMODELLEVEL
+    include "netcdf.inc"
+#endif
+
     USE CHARPAK_MOD,        ONLY : TRANLC
     USE HCO_Unit_Mod,       ONLY : HCO_Unit_Change
     USE HCO_Unit_Mod,       ONLY : HCO_Unit_ScalCheck
@@ -137,8 +134,6 @@ CONTAINS
     USE HCO_DIAGN_MOD,      ONLY : Diagn_Update
     USE HCO_EXTLIST_MOD,    ONLY : HCO_GetOpt
     USE HCO_TIDX_MOD,       ONLY : tIDx_IsInRange
-
-    include "netcdf.inc"
 !
 ! !INPUT PARAMETERS:
 !
@@ -188,6 +183,7 @@ CONTAINS
 !
 ! !LOCAL VARIABLES:
 !
+#if !defined( HEMCO_CESM )
     CHARACTER(LEN=255)            :: thisUnit, LevUnit, LevName
     CHARACTER(LEN=255)            :: MSG
     CHARACTER(LEN=1023)           :: srcFile, srcFile2
@@ -1440,6 +1436,7 @@ CONTAINS
     ! Return w/ success
     CALL HCO_LEAVE ( HcoState%Config%Err,  RC )
 
+#endif
   END SUBROUTINE HCOIO_read_std
 !EOC
 !------------------------------------------------------------------------------
@@ -1477,7 +1474,9 @@ CONTAINS
 !
 ! !USES:
 !
+#if !defined( HEMCO_CESM )
     USE Ncdf_Mod,      ONLY : NC_Read_Time_YYYYMMDDhhmm
+#endif
     USE HCO_tIdx_Mod,  ONLY : HCO_GetPrefTimeAttr
 !
 ! !INPUT PARAMETERS:
@@ -1509,7 +1508,7 @@ CONTAINS
 !------------------------------------------------------------------------------
 !BOC
 !
-! !LOcAL VARIABLES:
+! !LOCAL VARIABLES:
 !
     CHARACTER(LEN=255)    :: MSG
     CHARACTER(LEN=1023)   :: MSG_LONG
@@ -1521,6 +1520,9 @@ CONTAINS
     REAL(dp),   POINTER   :: availYMDhm(:)
     LOGICAL               :: ExitSearch
     LOGICAL               :: verb
+
+#if !defined( HEMCO_CESM )
+    ! Stub everything out temporarily (hplin, 2/17/20)
 
     !=================================================================
     ! GET_TIMEIDX begins here
@@ -1978,6 +1980,7 @@ CONTAINS
        oYMDhm = origYMDhm
     ENDIF
 
+#endif
     IF ( ASSOCIATED(availYMDhm) ) DEALLOCATE(availYMDhm)
 
     ! Return w/ success
@@ -3255,8 +3258,8 @@ CONTAINS
 !
 ! !USES:
 !
-    USE m_netcdf_io_checks
-    USE m_netcdf_io_get_dimlen
+    ! USE m_netcdf_io_checks
+    ! USE m_netcdf_io_get_dimlen
     USE HCO_ExtList_Mod,    ONLY : GetExtOpt
 !
 ! !INPUT PARAMETERS:
@@ -3291,7 +3294,8 @@ CONTAINS
 
     ! Assume success until otherwise
     RC = HCO_SUCCESS
-
+#if !defined( HEMCO_CESM )
+    ! Temporarily commented out for testing
     ! Init
     ArbIdx = -1
     IF ( TRIM(Lct%Dct%Dta%ArbDimName) == 'none' ) RETURN
@@ -3365,10 +3369,9 @@ CONTAINS
 
     ! Return w/ success
     RC = HCO_SUCCESS
-
+#endif
   END SUBROUTINE GetArbDimIndex
 !EOC
-#endif
 !------------------------------------------------------------------------------
 !                  Harvard-NASA Emissions Component (HEMCO)                   !
 !------------------------------------------------------------------------------
@@ -3818,7 +3821,7 @@ CONTAINS
 !
 ! !USES:
 !
-#if !defined(ESMF_)
+#if !defined(ESMF_) && !defined ( HEMCO_CESM )
     USE Ncdf_Mod,       ONLY : NC_CLOSE
 #endif
 !
@@ -3842,7 +3845,7 @@ CONTAINS
     !======================================================================
     ! HCOIO_CloseAll begins here
     !======================================================================
-#if !defined(ESMF_)
+#if !defined(ESMF_) && !defined ( HEMCO_CESM )
     IF ( HcoState%ReadLists%FileLun > 0 ) THEN
        CALL NC_CLOSE( HcoState%ReadLists%FileLun )
        HcoState%ReadLists%FileLun = -1

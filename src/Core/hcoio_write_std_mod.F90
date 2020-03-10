@@ -88,6 +88,7 @@ CONTAINS
 !
 ! !USES:
 !
+#if !defined( HEMCO_CESM )
     USE m_netCDF_io_define
     USE m_netcdf_io_read
     USE m_netcdf_io_open
@@ -99,6 +100,11 @@ CONTAINS
     USE Ncdf_Mod,            ONLY : NC_Var_Def
     USE Ncdf_Mod,            ONLY : NC_Var_Write
     USE Ncdf_Mod,            ONLY : NC_Get_RefDateTime
+
+    ! Parameters for netCDF routines
+    include "netcdf.inc"
+#endif
+
     USE CHARPAK_Mod,         ONLY : TRANLC
     USE HCO_Chartools_Mod,   ONLY : HCO_CharParse
     USE HCO_State_Mod,       ONLY : HCO_State
@@ -106,9 +112,6 @@ CONTAINS
     USE HCO_EXTLIST_MOD,     ONLY : GetExtOpt, CoreNr
     USE HCO_Types_Mod,       ONLY : DiagnCont
     USE HCO_Clock_Mod
-
-    ! Parameters for netCDF routines
-    include "netcdf.inc"
 !
 ! !INPUT PARAMETERS:
 !
@@ -156,6 +159,7 @@ CONTAINS
 !
 ! !LOCAL VARIABLES:
 !
+#if !defined( HEMCO_CESM )
     INTEGER                   :: I, PS, CNT, levIdTmp, indexL, indexR
     REAL(dp)                  :: GMT, JD1, JD1985, JD_DELTA, THISDAY, P0
     REAL(sp)                  :: TMP, JD_DELTA_RND
@@ -808,7 +812,7 @@ CONTAINS
 
     ! Return
     RC = HCO_SUCCESS
-
+#endif
   END SUBROUTINE HCOIO_write_std
 !EOC
 !------------------------------------------------------------------------------

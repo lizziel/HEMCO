@@ -98,7 +98,9 @@ CONTAINS
     USE HCOX_State_MOD,         ONLY : ExtStateInit
     USE HCOX_Custom_Mod,        ONLY : HCOX_Custom_Init
     USE HCOX_SeaFlux_Mod,       ONLY : HCOX_SeaFlux_Init
+#if !defined ( HEMCO_CESM )
     USE HCOX_ParaNOx_Mod,       ONLY : HCOX_ParaNOx_Init
+#endif
     USE HCOX_LightNox_Mod,      ONLY : HCOX_LightNox_Init
     USE HCOX_SoilNox_Mod,       ONLY : HCOX_SoilNox_Init
     USE HCOX_DustDead_Mod,      ONLY : HCOX_DustDead_Init
@@ -181,7 +183,7 @@ CONTAINS
     ! these extensions so that we can print out the required file paths
     ! when performing a GEOS-Chem dry-run or HEMCO standalone dry-run.
     !=======================================================================
-
+#if !defined ( HEMCO_CESM )
     !-----------------------------------------------------------------------
     ! ParaNox
     !-----------------------------------------------------------------------
@@ -191,7 +193,7 @@ CONTAINS
        CALL HCO_ERROR( HcoState%Config%Err, ErrMsg, RC, ThisLoc )
        RETURN
     ENDIF
-
+#endif
     !-----------------------------------------------------------------------
     ! LightNox
     !-----------------------------------------------------------------------
@@ -433,7 +435,9 @@ CONTAINS
     USE HCO_Clock_Mod,          ONLY : HcoClock_Get
     USE HCOX_Custom_Mod,        ONLY : HCOX_Custom_Run
     USE HCOX_SeaFlux_Mod,       ONLY : HCOX_SeaFlux_Run
+#if !defined( HEMCO_CESM )
     USE HCOX_ParaNox_Mod,       ONLY : HCOX_ParaNox_Run
+#endif
     USE HCOX_LightNox_Mod,      ONLY : HCOX_LightNox_Run
     USE HCOX_SoilNox_Mod,       ONLY : HCOX_SoilNox_Run
     USE HCOX_DustDead_Mod,      ONLY : HCOX_DustDead_Run
@@ -558,6 +562,7 @@ CONTAINS
           ENDIF
        ENDIF
 
+#if !defined ( HEMCO_CESM )
        !--------------------------------------------------------------------
        ! ParaNox (Ship NO emissions)
        !--------------------------------------------------------------------
@@ -569,6 +574,7 @@ CONTAINS
              RETURN
           ENDIF
        ENDIF
+#endif
 
        !--------------------------------------------------------------------
        ! Lightning NOx
@@ -789,7 +795,9 @@ CONTAINS
     USE HCOX_State_Mod,         ONLY : ExtStateFinal
     USE HCOX_Custom_Mod,        ONLY : HCOX_Custom_Final
     USE HCOX_SeaFlux_Mod,       ONLY : HCOX_SeaFlux_Final
+#if !defined ( HEMCO_CESM )
     USE HCOX_ParaNOx_Mod,       ONLY : HCOX_PARANOX_Final
+#endif
     USE HCOX_LightNox_Mod,      ONLY : HCOX_LightNox_Final
     USE HCOX_SoilNox_Mod,       ONLY : HCOX_SoilNox_Final
     USE HCOX_DustDead_Mod,      ONLY : HCOX_DustDead_Final
@@ -860,9 +868,11 @@ CONTAINS
              CALL HCOX_SeaFlux_Final( ExtState )
           ENDIF
 
+#if !defined ( HEMCO_CESM )
           IF ( ExtState%ParaNOx > 0   ) THEN
              CALL HCOX_PARANOX_Final( am_I_Root, HcoState, ExtState, RC )
           ENDIF
+#endif
 
           IF ( ExtState%LightNOx > 0  ) THEN
              CALL HCOX_LIGHTNOX_Final( ExtState )
